@@ -10,23 +10,18 @@ function deterministicPartitionKey(event) {
     return TRIVIAL_PARTITION_KEY;
   }
 
-  // If the event doesn't have a partition key, then return the hash directly
-  if (!event.partitionKey) {
+  const partitionKey = event.partitionKey;
+
+  // If the event doesn't have a partition key, then return the hash directly.
+  // This is only possible when the algorithm produces a hash bigger than the MAX_PARTITION_KEY_LENGTH
+  if (!partitionKey) {
     const data = JSON.stringify(event);
     return createHash(data);
   }
 
-  let candidate = event.partitionKey;
+  const candidate = typeof partitionKey === "string" ? partitionKey : JSON.stringify(partitionKey);
 
-  if (typeof candidate !== "string") {
-    candidate = JSON.stringify(candidate);
-  }
-
-  if (candidate.length > MAX_PARTITION_KEY_LENGTH) {
-    candidate = createHash(candidate);
-  }
-
-  return candidate;
+  return candidate.length > MAX_PARTITION_KEY_LENGTH ? createHash(candidate) : candidate;
 }
 
 function createHash(data) {
