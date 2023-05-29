@@ -2,6 +2,8 @@ const crypto = require("crypto");
 
 const TRIVIAL_PARTITION_KEY = "0";
 const MAX_PARTITION_KEY_LENGTH = 256;
+const HASH_ALGORITHM = "sha3-512";
+const HASH_ENCODING = "hex";
 
 function deterministicPartitionKey(event) {
   let candidate;
@@ -11,7 +13,7 @@ function deterministicPartitionKey(event) {
       candidate = event.partitionKey;
     } else {
       const data = JSON.stringify(event);
-      candidate = crypto.createHash("sha3-512").update(data).digest("hex");
+      candidate = createHash(data);
     }
   }
 
@@ -23,9 +25,13 @@ function deterministicPartitionKey(event) {
     candidate = TRIVIAL_PARTITION_KEY;
   }
   if (candidate.length > MAX_PARTITION_KEY_LENGTH) {
-    candidate = crypto.createHash("sha3-512").update(candidate).digest("hex");
+    candidate = createHash(candidate);
   }
   return candidate;
+}
+
+function createHash(data) {
+  return crypto.createHash(HASH_ALGORITHM).update(data).digest(HASH_ENCODING);
 }
 
 module.exports = { deterministicPartitionKey };
