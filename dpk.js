@@ -3,7 +3,7 @@ const crypto = require("crypto");
 const TRIVIAL_PARTITION_KEY = "0";
 const MAX_PARTITION_KEY_LENGTH = 256;
 
-exports.deterministicPartitionKey = (event) => {
+function deterministicPartitionKey(event) {
   let candidate;
 
   if (event) {
@@ -26,4 +26,6 @@ exports.deterministicPartitionKey = (event) => {
     candidate = crypto.createHash("sha3-512").update(candidate).digest("hex");
   }
   return candidate;
-};
+}
+
+module.exports = { deterministicPartitionKey };
