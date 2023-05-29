@@ -1,27 +1,30 @@
 const { deterministicPartitionKey } = require("./dpk");
 
 describe("deterministicPartitionKey", () => {
-  it("Returns the literal '0' when given no input", () => {
-    const trivialKey = deterministicPartitionKey();
-    expect(trivialKey).toBe("0");
+
+  describe("When no event is provided", () => {
+    it("Returns the literal '0' when given no input", () => {
+      const trivialKey = deterministicPartitionKey();
+      expect(trivialKey).toBe("0");
+    });
   });
 
-  describe("When event.partitionKey (PK) is provided, but smaller than MAX_PARTITION_KEY_LENGTH", () => {
-    it("Returns the same key if PK is a string", () => {
+  describe("When event.partitionKey is provided, but smaller than MAX_PARTITION_KEY_LENGTH", () => {
+    it("Returns the same key if partitionKey is a string", () => {
       const trivialKey = deterministicPartitionKey({
         partitionKey: "test"
       });
       expect(trivialKey).toBe("test");
     });
 
-    it("Returns a stringified version of the PK if it's not a string", () => {
+    it("Returns a stringified version of the partitionKey if it's not a string (eg. number)", () => {
       const trivialKey = deterministicPartitionKey({
         partitionKey: 5
       });
       expect(trivialKey).toBe("5");
     });
 
-    it("Returns a stringified version of the PK if it's not a string", () => {
+    it("Returns a stringified version of the partitionKey if it's not a string (eg. object)", () => {
       const trivialKey = deterministicPartitionKey({
         partitionKey: {"anything": true}
       });
@@ -29,8 +32,8 @@ describe("deterministicPartitionKey", () => {
     });
   })
 
-  describe("When event.partitionKey (PK) is provided and bigger than MAX_PARTITION_KEY_LENGTH", () => {
-    it("Returns the hash of the PK", () => {
+  describe("When event.partitionKey is provided and bigger than MAX_PARTITION_KEY_LENGTH", () => {
+    it("Returns the hash of the partitionKey", () => {
       const trivialKey = deterministicPartitionKey({
         partitionKey: 'x'.repeat(1024)
       });
@@ -39,7 +42,12 @@ describe("deterministicPartitionKey", () => {
   });
 
   describe("When event.partitionKey is not provided", () => {
-    it("Returns the hash of the event", () => {
+    it("Returns the hash of the event object itself (eg. Number)", () => {
+      const trivialKey = deterministicPartitionKey(5);
+      expect(trivialKey).toBe("c74bd95b8555275277d4e941c73985b4bcd923b36fcce75968ebb3c5a8d2b1ac411cfae4c2d473bff59a2b7b5ea220f0ac7bb8c880afb32f1b4881d59cc60d85");
+    });
+
+    it("Returns the hash of the event object itself (eg. Object)", () => {
       const trivialKey = deterministicPartitionKey({
         whatever: "test"
       });
