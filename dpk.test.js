@@ -42,17 +42,26 @@ describe("deterministicPartitionKey", () => {
   });
 
   describe("When event.partitionKey is not provided", () => {
-    it("Returns the hash of the event object itself (eg. Number)", () => {
-      const trivialKey = deterministicPartitionKey(5);
-      expect(trivialKey).toBe("c74bd95b8555275277d4e941c73985b4bcd923b36fcce75968ebb3c5a8d2b1ac411cfae4c2d473bff59a2b7b5ea220f0ac7bb8c880afb32f1b4881d59cc60d85");
-    });
-
-    it("Returns the hash of the event object itself (eg. Object)", () => {
-      const trivialKey = deterministicPartitionKey({
-        whatever: "test"
+    describe("When event is smaller than MAX_PARTITION_KEY_LENGTH", () => {
+      it("Returns the hash of the event object itself (eg. Number)", () => {
+        const trivialKey = deterministicPartitionKey(5);
+        expect(trivialKey).toBe("c74bd95b8555275277d4e941c73985b4bcd923b36fcce75968ebb3c5a8d2b1ac411cfae4c2d473bff59a2b7b5ea220f0ac7bb8c880afb32f1b4881d59cc60d85");
       });
-      expect(trivialKey).toBe("e1ae4bdfb50185a64b3526cecb7d93d0736903ab12defaf24b5dcf088345882484db6896145a6f041f4794f346e0e6c6798414096cdf3fd7a6303c346d3d7f1c");
-    });
+
+      it("Returns the hash of the event object itself (eg. Object)", () => {
+        const trivialKey = deterministicPartitionKey({
+          whatever: "test"
+        });
+        expect(trivialKey).toBe("e1ae4bdfb50185a64b3526cecb7d93d0736903ab12defaf24b5dcf088345882484db6896145a6f041f4794f346e0e6c6798414096cdf3fd7a6303c346d3d7f1c");
+      });
+    })
+
+    describe("When event is bigger than MAX_PARTITION_KEY_LENGTH", () => {
+      it("Returns the hash of the event object itself (eg. Number)", () => {
+        const trivialKey = deterministicPartitionKey('x'.repeat(1024));
+        expect(trivialKey).toBe("d920ecff41c8b46464c85f8af9d8742ea6ab1567dd6d762ac300031480c1c5e62c3d68b5bc75364e11aff42ff835449fb55f84b6e061cbdee0938ed0390c0519");
+      });
+    })
   });
 
 });
